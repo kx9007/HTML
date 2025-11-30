@@ -8,7 +8,10 @@
     <style>
         @font-face {
             font-family: 'sf';
-            src: url('font/sf.ttf');
+            src: url('font/sf.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap; /* 优化字体加载性能 */
         }
     /* 全局样式和变量 */
     :root {
@@ -213,7 +216,7 @@
         position: relative;
         z-index: 2;
         max-width: 800px;
-        font-family: 'sf';
+        font-family: 'sf', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
 
     .hero h2 {
@@ -228,7 +231,7 @@
         margin-bottom: 40px;
         text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
         color: var(--color-light);
-        font-family: 'sf';
+        font-family: 'sf', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
 
     .cta-buttons {
