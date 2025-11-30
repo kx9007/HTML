@@ -1,0 +1,899 @@
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支持我们-你的打赏是我们前进的动力!</title>
+    <link rel="icon" href="icon.png" type="image/x-icon" />
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/layui/2.11.5/css/layui.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/limonte-sweetalert2/11.4.8/sweetalert2.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e7f1 100%);
+            min-height: 100vh;
+            padding: 20px;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin: 20px 0 30px;
+            padding: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+            font-weight: 700;
+        }
+
+        .header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(to right, #ff9966, #ff5e62);
+            border-radius: 2px;
+        }
+
+        .header p {
+            color: #555;
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 25px auto 15px;
+            line-height: 1.7;
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .donate-options {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.1);
+            padding: 25px 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .donate-options:hover {
+            transform: translateY(-5px);
+        }
+
+        .qrcode-section {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.1);
+            padding: 25px 20px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .qrcode-section:hover {
+            transform: translateY(-5px);
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f4f8;
+            position: relative;
+            font-weight: 600;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(to right, #ff9966, #ff5e62);
+            border-radius: 3px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 18px;
+        }
+
+        .donate-option {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 22px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #e9ecef;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .donate-option:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
+            border-color: #ff9966;
+        }
+
+        .donate-option.selected {
+            background: linear-gradient(135deg, #fff6e9 0%, #ffece6 100%);
+            border-color: #ff9966;
+            box-shadow: 0 8px 20px rgba(255, 158, 102, 0.25);
+        }
+
+        .donate-option i {
+            font-size: 2.4rem;
+            margin-bottom: 15px;
+            color: #ff9966;
+            transition: transform 0.3s ease;
+        }
+
+        .donate-option:hover i {
+            transform: scale(1.15);
+        }
+
+        .donate-option h3 {
+            font-size: 1.15rem;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .donate-option p {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #ff5e62;
+        }
+
+        .amount-display {
+            background: linear-gradient(135deg, #f8f9fa 0%, #edf1f7 100%);
+            border-radius: 12px;
+            padding: 25px 20px;
+            text-align: center;
+            margin: 28px 0 22px;
+            border: 2px dashed #dce1e8;
+            position: relative;
+        }
+
+        .amount-display::before {
+            content: "❤";
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            width: 30px;
+            height: 30px;
+            background: #ff5e62;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .amount-display h3 {
+            color: #666;
+            font-size: 1.15rem;
+            margin-bottom: 12px;
+        }
+
+        .amount-display .amount {
+            font-size: 2.4rem;
+            font-weight: bold;
+            color: #ff5e62;
+            text-shadow: 0 2px 4px rgba(255, 94, 98, 0.2);
+        }
+
+        .qrcode-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .qrcode-item {
+            text-align: center;
+            padding: 15px 10px;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 150px;
+            cursor: pointer;
+        }
+
+        .qrcode-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .qrcode-item img {
+            width: 100%;
+            max-width: 160px;
+            height: auto;
+            aspect-ratio: 1/1;
+            border-radius: 12px;
+            border: 1px solid #eee;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .qrcode-item:hover img {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .qrcode-item p {
+            margin-top: 15px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+
+        .payment-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .payment-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.9rem;
+            color: white;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .payment-icon:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .wechat {
+            background: linear-gradient(135deg, #2aac19, #1f8c13);
+        }
+
+        .alipay {
+            background: linear-gradient(135deg, #1677ff, #0957c0);
+        }
+
+        .qq {
+            background: linear-gradient(135deg, #12b7f5, #0084ff);
+        }
+
+        .donation-history {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.1);
+            padding: 25px 20px;
+            margin-top: 25px;
+        }
+
+        .history-list {
+            margin-top: 20px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            padding: 18px 20px;
+            border-bottom: 1px solid #f0f4f8;
+            transition: background 0.3s;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .history-item:hover {
+            background: #f9fbfd;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .avatar-wx {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2aac19, #1f8c13);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.3rem;
+            margin-right: 22px;
+            flex-shrink: 0;
+        }
+
+        .avatar-zfb {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1677ff, #0957c0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.3rem;
+            margin-right: 22px;
+            flex-shrink: 0;
+        }
+
+        .avatar-qq {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #12b7f5, #0084ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.3rem;
+            margin-right: 22px;
+            flex-shrink: 0;
+        }
+
+        .avatar-xy {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f12711, #f5af19);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.3rem;
+            margin-right: 22px;
+            flex-shrink: 0;
+        }
+
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-info h4 {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .history-info .time {
+            font-size: 0.95rem;
+            color: #7f8c8d;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-info .time i {
+            color: #ff9966;
+        }
+
+        .amount-badge {
+            background: linear-gradient(135deg, #fff6e9, #ffece6);
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-weight: bold;
+            color: #ff5e62;
+            font-size: 1.2rem;
+            min-width: 90px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(255, 158, 102, 0.15);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 35px 0 20px;
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+
+        .footer a {
+            color: #ff5e62;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* 优化移动端二维码区域 */
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .qrcode-container {
+                gap: 10px;
+            }
+
+            .qrcode-item {
+                padding: 12px 8px;
+                min-width: 110px;
+            }
+
+            .qrcode-item p {
+                margin-top: 12px;
+                font-size: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .header p {
+                font-size: 1.05rem;
+            }
+
+            .section-title {
+                font-size: 1.4rem;
+                margin-bottom: 20px;
+            }
+
+            .amount-display {
+                padding: 20px 15px;
+                margin: 22px 0 18px;
+            }
+
+            .amount-display .amount {
+                font-size: 2.1rem;
+            }
+
+            .payment-icons {
+                gap: 15px;
+                margin-top: 20px;
+            }
+
+            .payment-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.7rem;
+            }
+
+            .history-item {
+                padding: 15px;
+            }
+
+            .avatar {
+                width: 46px;
+                height: 46px;
+                margin-right: 15px;
+                font-size: 1.1rem;
+            }
+
+            .history-info h4 {
+                font-size: 1.1rem;
+            }
+
+            .amount-badge {
+                padding: 6px 15px;
+                font-size: 1.1rem;
+                min-width: 80px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .qrcode-container {
+                flex-direction: row;
+                justify-content: center;
+            }
+
+            .qrcode-item {
+                flex: 0 0 calc(33.333% - 10px);
+                padding: 10px 5px;
+            }
+
+            .qrcode-item img {
+                max-width: 100%;
+            }
+
+            .options-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .header {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.9rem;
+            }
+
+            .header p {
+                margin: 15px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>收益中心</h1>
+            <p>您的支持将帮助我们持续提供更好的内容和服务<br>捐赠资金将用于服务器续费和运营<br>打赏请备注联系方式,方便回访和记录<br>闲鱼为接单收益</p>
+        </div>
+
+        <div class="content">
+            <div class="donate-options">
+                <h2 class="section-title">打赏金额</h2>
+                <div class="options-grid">
+
+                    <div class="donate-option selected" data-amount="1">
+                        <i class="fa-solid fa-candy-cane"></i>
+                        <h3>棒棒糖</h3>
+                        <p>1元</p>
+                    </div>
+                    <div class="donate-option" data-amount="3">
+                        <i class="fas fa-wine-bottle"></i>
+                        <h3>可乐</h3>
+                        <p>3元</p>
+                    </div>
+                    <div class="donate-option" data-amount="7">
+                        <i class="fas fa-coffee"></i>
+                        <h3>珍珠奶茶</h3>
+                        <p>7元</p>
+                    </div>
+                    <div class="donate-option" data-amount="15">
+                        <i class="fas fa-utensils"></i>
+                        <h3>外卖</h3>
+                        <p>15元</p>
+                    </div>
+                    <div class="donate-option" data-amount="30">
+                        <i class="fa-solid fa-fish"></i>
+                        <h3>红烧鱼</h3>
+                        <p>30元</p>
+                    </div>
+                    <div class="donate-option" data-amount="50">
+                        <i class="fas fa-server"></i>
+                        <h3>服务器续费</h3>
+                        <p>50元</p>
+                    </div>
+                </div>
+
+                <div class="amount-display">
+                    <h3>当前打赏金额</h3>
+                    <div class="amount">3元</div>
+                </div>
+
+                <div class="payment-icons">
+                    <div class="payment-icon wechat" data-payment="wechat">
+                        <i class="fab fa-weixin"></i>
+                    </div>
+                    <div class="payment-icon alipay" data-payment="alipay">
+                        <i class="fab fa-alipay"></i>
+                    </div>
+                    <div class="payment-icon qq" data-payment="qq">
+                        <i class="fab fa-qq"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qrcode-section">
+                <h2 class="section-title">扫码打赏</h2>
+                <p style="color: #666; margin-bottom: 20px; text-align: center;">请选择捐款方式扫码完成打赏</p>
+
+                <div class="qrcode-container">
+                    <div class="qrcode-item active" data-payment="wechat">
+                        <img src="src/images/wx.png" alt="微信捐款">
+                        <p>微信捐款</p>
+                    </div>
+                    <div class="qrcode-item" data-payment="alipay">
+                        <img src="src/images/zfb.png" alt="支付宝捐款">
+                        <p>支付宝</p>
+                    </div>
+                    <div class="qrcode-item" data-payment="qq">
+                        <img src="src/images/qq.png" alt="QQ捐款">
+                        <p>QQ捐款</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="donation-history">
+            <h2 class="section-title">收款记录</h2>
+            <div class="history-list">
+                
+                <div class="history-item"
+                    data-screenshot="https://file.kxlove.top/view.php/fc6f3555cdd58483fc96ce2975b644e4.jpg">
+                    <div class="avatar-xy"><i class="fa-solid fa-fish"></i></div>
+                    <div class="history-info">
+                        <h4>闲鱼2</h4>
+                        <div class="time"><i class="far fa-clock"></i> 2025-08-11</div>
+                    </div>
+                    <div class="amount-badge">5元</div>
+                </div>
+                <div class="history-item"
+                    data-screenshot="https://file.kxlove.top/view.php/43461ce53a1a66fbfe6ec662221f8778.jpg">
+                    <div class="avatar-xy"><i class="fa-solid fa-fish"></i></div>
+                    <div class="history-info">
+                        <h4>闲鱼鹿</h4>
+                        <div class="time"><i class="far fa-clock"></i> 2025-08-07</div>
+                    </div>
+                    <div class="amount-badge">1元</div>
+                </div>
+                <div class="history-item"
+                    data-screenshot="https://file.kxlove.top/view.php/311dd3ccd71c02f24ac3e6b6948f152f.jpg">
+                    <div class="avatar-xy"><i class="fa-solid fa-fish"></i></div>
+                    <div class="history-info">
+                        <h4>闲鱼6</h4>
+                        <div class="time"><i class="far fa-clock"></i> 2025-08-07</div>
+                    </div>
+                    <div class="amount-badge">2.3元</div>
+                </div>
+                <div class="history-item"
+                    data-screenshot="https://file.kxlove.top/view.php/0ad8523324c85951ec3f51d931b4ff9e.jpg">
+                    <div class="avatar-xy"><i class="fa-solid fa-fish"></i></div>
+                    <div class="history-info">
+                        <h4>闲鱼8</h4>
+                        <div class="time"><i class="far fa-clock"></i> 2025-08-04</div>
+                    </div>
+                    <div class="amount-badge">3元</div>
+                </div>
+                <div class="history-item"
+                    data-screenshot="https://file.kxlove.top/view.php/e665f2a1f88b2cd3ee2103e21d851033.jpg">
+                    <div class="avatar-xy"><i class="fa-solid fa-fish"></i></div>
+                    <div class="history-info">
+                        <h4>闲鱼1</h4>
+                        <div class="time"><i class="far fa-clock"></i> 2025-08-04</div>
+                    </div>
+                    <div class="amount-badge">0.5元</div>
+                </div>
+                <div class="history-item"
+                    data-screenshot="https://file.kxlove.top/view.php/59f71da0182f1cb23ec7bf81efcf62e2.jpg">
+                    <div class="avatar-xy"><i class="fa-solid fa-fish"></i></div>
+                    <div class="history-info">
+                        <h4>闲鱼h</h4>
+                        <div class="time"><i class="far fa-clock"></i> 2025-08-04</div>
+                    </div>
+                    <div class="amount-badge">0.1元</div>
+                </div>
+                <div class="history-item"
+                    data-screenshot="https://file.kxlove.top/view.php/f691be2a6a1278684e8f35b95af89a05.jpg">
+                    <div class="avatar-zfb"><i class="fab fa-alipay"></i></div>
+                    <div class="history-info">
+                        <h4>支付宝4067</h4>
+                        <div class="time"><i class="far fa-clock"></i> 2025-08-04</div>
+                    </div>
+                    <div class="amount-badge">100元</div>
+                </div>
+                <div class="history-item"
+                    data-screenshot="https://file.kxlove.top/view.php/4a3bfe1f6bd009a9d4c3e1238932aee0.jpg">
+                    <div class="avatar-xy"><i class="fa-solid fa-fish"></i></div>
+                    <div class="history-info">
+                        <h4>咸鱼8</h4>
+                        <div class="time"><i class="far fa-clock"></i> 2025-08-03</div>
+                    </div>
+                    <div class="amount-badge">0.1元</div>
+                </div>
+
+                <div class="history-item"
+                    data-screenshot="https://file.kxlove.top/view.php/5d9e189af4649cabf0e9d1f69e48c301.jpg">
+                    <div class="avatar-wx"><i class="fab fa-weixin"></i></div>
+                    <div class="history-info">
+                        <h4>微信9488</h4>
+                        <div class="time"><i class="far fa-clock"></i> 2025-08-04</div>
+                    </div>
+                    <div class="amount-badge">20元</div>
+                </div>
+                <div class="history-item"
+                    data-screenshot="https://file.kxlove.top/view.php/f30b04aa42ef0e58bfa315628ca38727.png">
+                    <div class="avatar-wx"><i class="fab fa-weixin"></i></div>
+                    <div class="history-info">
+                        <h4>微信0286</h4>
+                        <div class="time"><i class="far fa-clock"></i> 2024-04-03</div>
+                    </div>
+                    <div class="amount-badge">50元</div>
+                </div>
+                <div class="history-item"
+                    data-screenshot="https://file.kxlove.top/view.php/3b8b9dd3f09a31cce23f330708cd1b26.png">
+                    <div class="avatar-wx"><i class="fab fa-weixin"></i></div>
+                    <div class="history-info">
+                        <h4>微信0281</h4>
+                        <div class="time"><i class="far fa-clock"></i> 2024-01-21</div>
+                    </div>
+                    <div class="amount-badge">4元</div>
+                </div>
+                <div class="history-item"
+                    data-screenshot="https://file.kxlove.top/view.php/a21dffe7d5ac8f0c0b42829d8260766d.jpg">
+                    <div class="avatar-wx"><i class="fab fa-weixin"></i></div>
+                    <div class="history-info">
+                        <h4>微信0281</h4>
+                        <div class="time"><i class="far fa-clock"></i> 2024-01-21</div>
+                    </div>
+                    <div class="amount-badge">6元</div>
+                </div>
+                <div class="history-item"
+                    data-screenshot="https://file.kxlove.top/view.php/86e88c1b0ff4dc3bc0845fbc7296e75d.png">
+                    <div class="avatar-wx"><i class="fab fa-weixin"></i></div>
+                    <div class="history-info">
+                        <h4>微信1517</h4>
+                        <div class="time"><i class="far fa-clock"></i> 2023-08-06</div>
+                    </div>
+                    <div class="amount-badge">4.72元</div>
+                </div>
+                <div class="history-item"
+                    data-screenshot="https://file.kxlove.top/view.php/28afbe49d778da00fc7392d5af94ac15.jpg">
+                    <div class="avatar-wx"><i class="fab fa-weixin"></i></div>
+                    <div class="history-info">
+                        <h4>微信2675</h4>
+                        <div class="time"><i class="far fa-clock"></i> 2023-02-03</div>
+                    </div>
+                    <div class="amount-badge">5元</div>
+                </div>
+                <div class="history-item"
+                    data-screenshot="https://file.kxlove.top/view.php/891490d07a12cc8131093a1c3c8577f7.jpg">
+                    <div class="avatar-wx"><i class="fab fa-weixin"></i></div>
+                    <div class="history-info">
+                        <h4>微信5293</h4>
+                        <div class="time"><i class="far fa-clock"></i> 2023-01-02</div>
+                    </div>
+                    <div class="amount-badge">3元</div>
+                </div>
+                <div class="history-item"
+                    data-screenshot="https://file.kxlove.top/view.php/ad5f95f425d42159a20e24ab28f51c47.jpg">
+                    <div class="avatar-wx"><i class="fab fa-weixin"></i></div>
+                    <div class="history-info">
+                        <h4>微信9488</h4>
+                        <div class="time"><i class="far fa-clock"></i> 2023-01-02</div>
+                    </div>
+                    <div class="amount-badge">3元</div>
+                </div>
+                <div class="history-item"
+                    data-screenshot="https://file.kxlove.top/view.php/a21dffe7d5ac8f0c0b42829d8260766d.jpg">
+                    <div class="avatar-wx"><i class="fab fa-weixin"></i></div>
+                    <div class="history-info">
+                        <h4>微信9488</h4>
+                        <div class="time"><i class="far fa-clock"></i> 2023-01-02</div>
+                    </div>
+                    <div class="amount-badge">5元</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>感谢您的支持！如有任何问题，请联系 <a href="mailto:kuxia9007@qq.com">kuxia9007@qq.com</a></p>
+            <p>© 2025 King团队 版权所有 | 让King因您的慷慨解囊更美好</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/layui/2.11.5/layui.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/limonte-sweetalert2/11.4.8/sweetalert2.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 捐款方式点击事件
+            document.querySelectorAll('.payment-icon').forEach(icon => {
+                icon.addEventListener('click', function () {
+                    const payment = this.getAttribute('data-payment');
+                    let imgSrc = '';
+
+                    switch (payment) {
+                        case 'wechat':
+                            imgSrc = 'src/images/wx.png';
+                            break;
+                        case 'alipay':
+                            imgSrc = 'src/images/zfb.png';
+                            break;
+                        case 'qq':
+                            imgSrc = 'src/images/qq.png';
+                            break;
+                    }
+
+                    Swal.fire({
+                        title: `${payment === 'wechat' ? '微信' : payment === 'alipay' ? '支付宝' : 'QQ'}捐款`,
+                        imageUrl: imgSrc,
+                        imageAlt: `${payment}捐款二维码`,
+                        imageWidth: 300,
+                        imageHeight: 300,
+                        showConfirmButton: false,
+                        showCloseButton: true,
+                        background: '#f8f9fa',
+                        backdrop: 'rgba(0,0,0,0.7)'
+                    });
+                });
+            });
+
+            // 二维码点击事件
+            document.querySelectorAll('.qrcode-item').forEach(item => {
+                item.addEventListener('click', function () {
+                    const payment = this.getAttribute('data-payment');
+                    const imgSrc = this.querySelector('img').src;
+
+                    Swal.fire({
+                        title: `${payment === 'wechat' ? '微信' : payment === 'alipay' ? '支付宝' : 'QQ'}捐款`,
+                        imageUrl: imgSrc,
+                        imageAlt: `${payment}捐款二维码`,
+                        imageWidth: 350,
+                        imageHeight: 350,
+                        showConfirmButton: false,
+                        showCloseButton: true,
+                        background: '#f8f9fa',
+                        backdrop: 'rgba(0,0,0,0.7)'
+                    });
+                });
+            });
+
+            // 捐赠用户点击事件
+            document.querySelectorAll('.history-item').forEach(item => {
+                item.addEventListener('click', function () {
+                    const screenshot = this.getAttribute('data-screenshot');
+                    const name = this.querySelector('h4').textContent;
+                    const amount = this.querySelector('.amount-badge').textContent;
+                    const time = this.querySelector('.time').textContent;
+
+                    Swal.fire({
+                        title: `捐赠截图`,
+                        imageUrl: screenshot,
+                        imageAlt: `捐赠截图`,
+                        imageWidth: '300', // 匹配弹窗宽度比例，保持响应式
+                        imageHeight: '300', // 自动适应高度，避免图片变形
+                        showConfirmButton: false,
+                        showCloseButton: true,
+                        width: 'auto',
+                        background: '#f8f9fa',
+                        backdrop: 'rgba(0,0,0,0.7)'
+                    });
+                });
+            });
+
+            // 打赏选项点击事件
+            document.querySelectorAll('.donate-option').forEach(option => {
+                option.addEventListener('click', function () {
+                    document.querySelectorAll('.donate-option').forEach(el => {
+                        el.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+
+                    const amount = this.getAttribute('data-amount');
+                    document.querySelector('.amount').textContent = amount + '元';
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
