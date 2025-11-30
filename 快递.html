@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>递易查</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        /* 时间轴样式 */
+        .timeline-item {
+            position: relative;
+            padding-left: 2rem;
+            border-left: 2px solid #e2e8f0;
+            padding-bottom: 2.5rem;
+        }
+        .timeline-item:last-child {
+            border-left: 2px solid transparent;
+            padding-bottom: 0;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -0.55rem;
+            top: 0.1rem;
+            width: 1.1rem;
+            height: 1.1rem;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        /* 最新状态的高亮样式 */
+        .timeline-item.latest .timeline-dot {
+            border-color: #2563eb;
+            background: #2563eb;
+            color: white;
+            box-shadow: 0 0 0 4px #dbeafe;
+            width: 1.4rem;
+            height: 1.4rem;
+            left: -0.7rem;
+            top: 0;
+        }
+        .timeline-item.latest {
+            border-left-color: #bfdbfe;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 font-sans selection:bg-blue-100">
+
+    <nav class="bg-white shadow-sm sticky top-0 z-50 backdrop-blur-md bg-white/90">
+        <div class="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="bg-blue-600 text-white p-1.5 rounded-lg">
+                    <i class="fa-solid fa-box-open text-lg"></i>
+                </div>
+                <h1 class="text-lg font-bold text-slate-800 tracking-tight">极速查快递</h1>
+            </div>
+            <div class="text-xs font-mono text-slate-400 bg-slate-50 px-2 py-1 rounded border">API: Tmini</div>
+        </div>
+    </nav>
+
+    <main class="max-w-2xl mx-auto px-4 py-6 space-y-6">
+
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 transition-all">
+            <div class="flex flex-col gap-5">
+                
+                <div class="p-1 bg-slate-100 rounded-xl flex relative">
+                    <label class="flex-1 text-center relative z-10 cursor-pointer">
+                        <input type="radio" name="cpType" value="other" class="peer hidden" checked onchange="togglePhoneInput()">
+                        <div class="py-2.5 text-sm font-medium text-slate-500 rounded-lg transition-all peer-checked:bg-white peer-checked:text-blue-600 peer-checked:shadow-sm">
+                            <i class="fa-solid fa-cube mr-1"></i> 通用快递
+                        </div>
+                    </label>
+                    <label class="flex-1 text-center relative z-10 cursor-pointer">
+                        <input type="radio" name="cpType" value="sf" class="peer hidden" onchange="togglePhoneInput()">
+                        <div class="py-2.5 text-sm font-medium text-slate-500 rounded-lg transition-all peer-checked:bg-white peer-checked:text-blue-600 peer-checked:shadow-sm">
+                            <i class="fa-brands fa-scribd mr-1"></i> 顺丰速运
+                        </div>
+                    </label>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">运单号码</label>
+                    <div class="relative group">
+                        <input type="text" id="trackingNo" placeholder="请输入运单号 (例如: SF123...或者YT1234...)" 
+                            class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-mono text-slate-700">
+                        <i class="fa-solid fa-barcode absolute left-4 top-4 text-slate-400 group-focus-within:text-blue-500 transition-colors"></i>
+                    </div>
+                </div>
+
+                <div id="phoneInputGroup" class="hidden space-y-1.5 animate-fade-in-up" style="animation-duration: 0.2s;">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">手机尾号 (后4位)</label>
+                    <div class="relative group">
+                        <input type="tel" id="phoneLast4" maxlength="4" placeholder="例如: 5957" 
+                            class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-mono text-slate-700">
+                        <i class="fa-solid fa-mobile-screen absolute left-4 top-4 text-slate-400 group-focus-within:text-blue-500 transition-colors"></i>
+                    </div>
+                    <p class="text-[10px] text-orange-500 flex items-center gap-1 ml-1">
+                        <i class="fa-solid fa-circle-exclamation"></i> 顺丰隐私保护要求验证手机号
+                    </p>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button onclick="performQuery()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-blue-600/30 hover:shadow-blue-600/40 active:scale-[0.98] flex justify-center items-center gap-2">
+                        <span>查询轨迹</span> <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                    <button onclick="fillDemoData()" class="px-5 py-3.5 text-slate-500 border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-slate-700 hover:border-slate-300 transition-all font-medium text-sm" title="填入演示数据">
+                        演示
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="resultArea" class="hidden animate-fade-in-up">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-slate-900 text-white p-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-8 opacity-10">
+                        <i class="fa-solid fa-truck-fast text-8xl transform rotate-12"></i>
+                    </div>
+                    
+                    <div class="relative z-10">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h2 id="resCpName" class="text-xl font-bold mb-1">快递公司</h2>
+                                <div class="flex items-center gap-2 text-slate-400 font-mono text-sm">
+                                    <span id="resMailNo">SF0000000</span>
+                                    <button onclick="copyBillNo()" class="hover:text-white transition"><i class="fa-regular fa-copy"></i></button>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div id="resStatus" class="text-3xl font-bold text-green-400 tracking-tight">--</div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3 text-xs font-medium">
+                            <div class="bg-white/10 px-3 py-2 rounded-lg flex items-center gap-2 backdrop-blur-sm">
+                                <i class="fa-solid fa-phone text-blue-300"></i>
+                                <span id="resPhone">--</span>
+                            </div>
+                            <a href="#" id="resUrl" target="_blank" class="bg-white/10 px-3 py-2 rounded-lg flex items-center gap-2 backdrop-blur-sm hover:bg-white/20 transition">
+                                <i class="fa-solid fa-earth-americas text-blue-300"></i>
+                                <span>官网</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 sm:p-8 bg-white" id="timelineList">
+                    </div>
+                
+                <div class="bg-slate-50 px-6 py-3 text-xs text-slate-400 text-center border-t border-slate-100">
+                    最后更新时间: <span id="resUpdateTime">--</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="font-bold text-slate-700 flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-slate-400"></i> 查询历史
+                </h3>
+                <button onclick="clearHistory()" class="text-xs text-red-500 hover:text-red-600 hover:bg-red-50 px-2 py-1 rounded transition">
+                    清空全部
+                </button>
+            </div>
+            <div id="historyList" class="space-y-3">
+                </div>
+        </section>
+
+    </main>
+
+    <footer class="py-8 text-center text-slate-400 text-xs">
+        &copy; 2025 Logistics Query Demo
+    </footer>
+
+    <script>
+        // --- 演示数据 ---
+        const DEMO_DATA = {
+            "msg": "成功", "success": true, "code": 200,
+            "data": {
+                "cpCode": "SF", "mailNo": "SF3196001295302", "theLastTime": "2025-07-17 18:17:47", "cpMobile": "95338", "logisticsCompanyName": "顺丰快递", "cpUrl": "http://www.sf-express.com", "logisticsStatusDesc": "已签收", "logisticsStatus": "SIGN",
+                // 注意：API 返回的数据通常是按时间正序（旧到新），代码里会反转它
+                "logisticsTraceDetailList": [
+                    { "timeDesc": "2025-07-12 21:18:28", "logisticsStatus": "ACCEPT", "desc": "顺丰速运 已收取快件，您的期待，我们定竭诚守护，不负所托。" },
+                    { "timeDesc": "2025-07-13 00:54:08", "logisticsStatus": "TRANSPORT", "desc": "快件在【东莞虎门宴岗社区店】完成分拣，准备发往 【东莞陆运转运枢纽】" },
+                    { "timeDesc": "2025-07-14 07:21:15", "logisticsStatus": "TRANSPORT", "desc": "快件到达 【陵水椰林花园路西店，地址：陵水黎族自治县花园路西二横路49号】" },
+                    { "timeDesc": "2025-07-17 16:25:10", "logisticsStatus": "DELIVERING", "desc": "快件交给【李光耀，联系电话：13138923207】，正在派送途中" },
+                    { "timeDesc": "2025-07-17 16:30:54", "logisticsStatus": "FAILED", "desc": "快件派送不成功(因电话无人接听/关机/无信号，暂无法联系到收方客户),正在处理中,待再次派送" },
+                    { "timeDesc": "2025-07-17 18:17:47", "logisticsStatus": "SIGN", "desc": "经客户同意，快件已放在（前台），如有疑问请电联快递员【李光耀，电话：13138923207】。您的体验对于我们至关重要..." }
+                ]
+            }
+        };
+
+        // --- 逻辑控制 ---
+
+        function togglePhoneInput() {
+            const isSF = document.querySelector('input[name="cpType"]:checked').value === 'sf';
+            const phoneGroup = document.getElementById('phoneInputGroup');
+            isSF ? phoneGroup.classList.remove('hidden') : phoneGroup.classList.add('hidden');
+        }
+
+        function fillDemoData() {
+            document.querySelector('input[name="cpType"][value="sf"]').checked = true;
+            togglePhoneInput();
+            document.getElementById('trackingNo').value = "SF3196001295302";
+            document.getElementById('phoneLast4').value = "5957";
+        }
+
+        function copyBillNo() {
+            const no = document.getElementById('resMailNo').innerText;
+            navigator.clipboard.writeText(no).then(() => alert('单号已复制'));
+        }
+
+        async function performQuery() {
+            const cpType = document.querySelector('input[name="cpType"]:checked').value;
+            const trackingNo = document.getElementById('trackingNo').value.trim();
+            const phoneLast4 = document.getElementById('phoneLast4').value.trim();
+            const btn = document.querySelector('button[onclick="performQuery()"]');
+
+            if (!trackingNo) return alert("请输入运单号！");
+            if (cpType === 'sf' && phoneLast4.length !== 4) return alert("请输入4位手机尾号！");
+
+            const originalBtnHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 查询中...';
+            btn.disabled = true;
+
+            try {
+                let resultData;
+                // 演示逻辑
+                if (trackingNo === 'SF3196001295302') {
+                    await new Promise(r => setTimeout(r, 800));
+                    resultData = DEMO_DATA;
+                } else {
+                    // 真实请求 (可能受CORS限制)
+                    let url = `https://tmini.net/api/kuaiok?id=${trackingNo}`;
+                    if(cpType === 'sf') url += `&phone=${phoneLast4}`;
+                    
+                    try {
+                        const res = await fetch(url);
+                        resultData = await res.json();
+                    } catch(e) {
+                        alert("API请求失败(跨域限制)，已切换为演示数据展示界面效果。");
+                        resultData = DEMO_DATA; // Fallback demo
+                    }
+                }
+
+                if (resultData.code === 200 && resultData.success) {
+                    renderResult(resultData.data);
+                    saveToHistory(resultData.data.mailNo, resultData.data.logisticsCompanyName, cpType, phoneLast4);
+                    document.getElementById('resultArea').classList.remove('hidden');
+                    // 稍微延迟一点滚动，等待动画开始
+                    setTimeout(() => {
+                        document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                } else {
+                    alert(resultData.msg || "查询失败");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("发生错误");
+            } finally {
+                btn.innerHTML = originalBtnHtml;
+                btn.disabled = false;
+            }
+        }
+
+        function renderResult(data) {
+            document.getElementById('resCpName').textContent = data.logisticsCompanyName;
+            document.getElementById('resMailNo').textContent = data.mailNo;
+            document.getElementById('resUpdateTime').textContent = data.theLastTime || "N/A";
+            document.getElementById('resPhone').textContent = data.cpMobile || "--";
+            if(data.cpUrl) document.getElementById('resUrl').href = data.cpUrl.startsWith('http') ? data.cpUrl : 'http://' + data.cpUrl;
+
+            // 状态颜色
+            const statusEl = document.getElementById('resStatus');
+            statusEl.textContent = data.logisticsStatusDesc;
+            statusEl.className = 'text-3xl font-bold tracking-tight ' + 
+                (data.logisticsStatus === 'SIGN' ? 'text-green-400' : 
+                 (data.logisticsStatus === 'FAILED' || data.logisticsStatus === 'DELIVER_ABNORMAL') ? 'text-red-400' : 'text-blue-400');
+
+            const timelineDiv = document.getElementById('timelineList');
+            timelineDiv.innerHTML = '';
+
+            // [修改点1]：使用 slice() 复制数组，然后 reverse() 反转，确保最新在最上面
+            // 假设 API 返回的是 旧->新，反转后变为 新->旧
+            // 如果 API 已经是 新->旧，则不需要 reverse，通常物流接口是旧->新
+            const reversedList = [...data.logisticsTraceDetailList].reverse();
+
+            reversedList.forEach((trace, index) => {
+                const isLatest = index === 0; // 第一条就是最新的
+                
+                let icon = 'fa-arrow-up';
+                if(trace.logisticsStatus === 'SIGN') icon = 'fa-check';
+                if(trace.logisticsStatus === 'DELIVERING') icon = 'fa-truck';
+                if(trace.logisticsStatus === 'ACCEPT') icon = 'fa-box';
+                if(trace.logisticsStatus === 'FAILED') icon = 'fa-triangle-exclamation';
+
+                const html = `
+                    <div class="timeline-item ${isLatest ? 'latest' : ''}">
+                        <div class="timeline-dot">
+                            <i class="fa-solid ${icon} ${isLatest ? 'text-xs' : 'text-[10px] text-slate-400'}"></i>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline mb-1.5">
+                            <span class="font-bold text-base ${isLatest ? 'text-slate-900' : 'text-slate-600'}">
+                                ${formatStatus(trace.logisticsStatus)}
+                            </span>
+                            <span class="text-xs font-mono ${isLatest ? 'text-blue-600 font-bold' : 'text-slate-400'}">
+                                ${trace.timeDesc}
+                            </span>
+                        </div>
+                        <p class="text-sm ${isLatest ? 'text-slate-800' : 'text-slate-500'} leading-relaxed">
+                            ${trace.desc}
+                        </p>
+                    </div>
+                `;
+                timelineDiv.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        function formatStatus(code) {
+            const map = {'ACCEPT':'已揽收','TRANSPORT':'运输中','DELIVERING':'派送中','SIGN':'已签收','FAILED':'派送失败','DELIVER_ABNORMAL':'异常'};
+            return map[code] || code;
+        }
+
+        // --- 历史记录 ---
+        const STORAGE_KEY = 'express_history_v2';
+
+        function loadHistory() {
+            const listEl = document.getElementById('historyList');
+            const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            
+            if (history.length === 0) {
+                listEl.innerHTML = '<div class="text-center text-slate-300 text-sm py-6">暂无历史记录</div>';
+                return;
+            }
+
+            listEl.innerHTML = '';
+            // 历史记录倒序显示：最近查询的在最上面
+            history.slice().reverse().forEach((item, index) => {
+                // 计算原始数组中的索引 (length - 1 - index)
+                const realIndex = history.length - 1 - index;
+                
+                const div = document.createElement('div');
+                div.className = 'group flex items-center justify-between bg-white border border-slate-100 rounded-xl p-3 hover:border-blue-200 hover:shadow-sm transition-all';
+                div.innerHTML = `
+                    <div class="flex-1 cursor-pointer" onclick="recallHistory('${item.no}', '${item.type}', '${item.phone}')">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="bg-slate-100 text-slate-500 text-[10px] px-1.5 py-0.5 rounded">${item.company}</span>
+                            <span class="font-mono font-bold text-slate-700 text-sm group-hover:text-blue-600 transition">${item.no}</span>
+                        </div>
+                        <div class="text-[10px] text-slate-400">${item.time}</div>
+                    </div>
+                    <button onclick="deleteHistory(${realIndex})" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-300 hover:bg-red-50 hover:text-red-500 transition ml-2" title="删除">
+                        <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                `;
+                listEl.appendChild(div);
+            });
+        }
+
+        function saveToHistory(no, company, type, phone) {
+            let history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            history = history.filter(h => h.no !== no); // 去重
+            history.push({ no, company, type, phone, time: new Date().toLocaleString() });
+            if (history.length > 8) history.shift();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+            loadHistory();
+        }
+
+        // [修改点2]：添加 confirm 确认框
+        function deleteHistory(index) {
+            if (confirm("确定要删除这条查询记录吗？此操作无法撤销。")) {
+                let history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                history.splice(index, 1);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+                loadHistory();
+            }
+        }
+
+        function clearHistory() {
+            if(confirm('确定要清空所有记录吗？')) {
+                localStorage.removeItem(STORAGE_KEY);
+                loadHistory();
+            }
+        }
+
+        function recallHistory(no, type, phone) {
+            document.getElementById('trackingNo').value = no;
+            const radios = document.getElementsByName('cpType');
+            for(let r of radios) if(r.value === type) r.checked = true;
+            togglePhoneInput();
+            if (phone) document.getElementById('phoneLast4').value = phone;
+            performQuery();
+        }
+
+        window.onload = loadHistory;
+    </script>
+</body>
+</html>
