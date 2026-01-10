@@ -1,0 +1,572 @@
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub 文件加速</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: url('https://api.seaya.link/web?type=file');
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            /* 关键修改：把纯白背景改为半透明白色 */
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 13px;
+            box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            /* 玻璃模糊核心属性 */
+            backdrop-filter: blur(10px);
+            /* 兼容 Safari 浏览器 */
+            -webkit-backdrop-filter: blur(10px);
+            /* 可选：加一层边框增强玻璃质感 */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .input-group {
+            display: flex;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            font-size: 16px;
+            outline: none;
+            border-radius: 6px 0 0 6px;
+        }
+
+        button {
+            background:  #06d6a0;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            border-radius: 0 6px 6px 0;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .api-selector {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .api-selector label {
+            margin-right: 15px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .api-selector select {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            outline: none;
+            cursor: pointer;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #333;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .example-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .supported-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .supported-list li {
+            padding: 8px 0;
+            color: #555;
+        }
+
+        .supported-list li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            color: #856404;
+        }
+        
+        .supported-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .supported-table th, .supported-table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .supported-table th {
+            background: #667eea;
+            color: white;
+            /* 设置表头边框颜色与背景色相同，消除两个th之间的细线 */
+            border-color: #667eea;
+            /* 仅为表头底部保留原始边框颜色 */
+            border-bottom-color: #ddd;
+        }
+
+        /* 响应式设计：媒体查询 */
+        @media (max-width: 768px) {
+            /* 调整body */
+            body {
+                padding: 10px;
+            }
+
+            /* 调整container */
+            .container {
+                padding: 20px;
+                margin: 0;
+            }
+
+            /* 调整标题大小 */
+            h1 {
+                font-size: 2em;
+            }
+
+            .subtitle {
+                font-size: 1em;
+            }
+
+            /* 调整api-selector布局 */
+            .api-selector {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .api-selector label {
+                margin-bottom: 10px;
+            }
+
+            /* 调整输入框和按钮布局 */
+            .input-group {
+                flex-direction: column;
+                box-shadow: none;
+            }
+
+            input {
+                border-radius: 6px;
+                margin-bottom: 10px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            button {
+                margin-top: 0;
+                padding: 15px;
+                width: 100%;
+                border-radius: 6px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            /* 确保输入框和选择器占满宽度 */
+            input, .api-selector select {
+                width: 100%;
+            }
+
+            /* 调整表格容器 */
+            .section {
+                overflow: visible;
+            }
+
+            /* 调整表格容器，使其内容可以横向滚动 */
+            .supported-table-container {
+                overflow-x: auto;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                border-radius: 6px;
+            }
+
+            /* 调整表格样式 */
+            .supported-table {
+                min-width: 400px;
+                width: 100%;
+            }
+
+            /* 调整示例代码字体大小 */
+            .code {
+                font-size: 12px;
+            }
+
+            /* 调整警告框和示例框的内边距 */
+            .warning, .example-box {
+                padding: 12px;
+            }
+        }
+
+        /* 针对小屏幕手机的优化 */
+        @media (max-width: 480px) {
+            /* 进一步调整标题大小 */
+            h1 {
+                font-size: 1.8em;
+            }
+
+            /* 调整输入框和选择器的内边距 */
+            input, .api-selector select {
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+
+            /* 调整表格单元格内边距 */
+            .supported-table th, .supported-table td {
+                padding: 10px 8px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>GitHub 文件加速</h1>
+        <p class="subtitle">使用edgeone实现代理</p>
+
+        <div class="api-selector">
+            <label for="apiSelect">选择代理接口：</label>
+            <select id="apiSelect">
+                <option value="https://hk.gh-proxy.org/" id="hk">中国香港</option>
+                <option value="https://edgeone.gh-proxy.org/" id="edgeone">中国EdgeOne</option>
+                <option value="https://gh-proxy.org/" id="us">自由美利坚cloudflare</option>
+                <option value="https://v6.gh-proxy.org/" id="usv6">自由美利坚IPv6</option>
+                <option value="https://cdn.gh-proxy.org/" id="uscdn">自由美利坚Fastly CDN</option>
+                <option value="http://jp-proxy.gitwarp.top:3000/" id="jp">小日本</option>
+                <option value="http://kr1-proxy.gitwarp.top:8081/" id="kr">泡菜韩国</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="urlInput"
+                placeholder="输入 GitHub 链接 反馈Q群 736037693">
+            <button onclick="downloadFile()">立即下载</button>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">链接格式 https://github.com/xx/xx.zip</h2>
+            <div class="supported-table-container">
+                <table class="supported-table">
+                <tr>
+                    <th style="border-radius: 10px 0 0 0;">类型</th>
+                    <th style="border-radius: 0 10px 0 0;">示例</th>
+                </tr>
+                <tr>
+                    <td>Raw 文件</td>
+                    <td>raw.githubusercontent.com</td>
+                </tr>
+                <tr>
+                    <td>Gist</td>
+                    <td>gist.github.com, gist.githubusercontent.com</td>
+                </tr>
+                <tr>
+                    <td>分支源码</td>
+                    <td>github.com/kx9007/HTML/archive/refs/tags/exe.tar.gz</td>
+                </tr>
+                <tr>
+                    <td>Releases 源码</td>
+                    <td>github.com/kx9007/HTML/archive/refs/tags/exe.zip</td>
+                </tr>
+                <tr>
+                    <td>Releases 文件</td>
+                    <td>github.com/kx9007/HTML/releases/download/exe/vlog.exe</td>
+                </tr>
+                <tr>
+                    <td>api调用</td>
+                    <td>choose=hk,edgeone,us,usv6,uscdn,jp,kr&url=https://github.com/xx/xx.zip</td>
+                </tr>
+            </table>
+            </div>
+        </div>
+
+        <div class="section" style="display: none;">
+            <h2 class="section-title">🖥️ 终端使用示例</h2>
+
+            <div class="example-box">
+                <strong>Git Clone</strong>
+                <div class="code">git clone \${location.origin}/https://github.com/user/repo.git</div>
+            </div>
+
+            <div class="example-box">
+                <strong>Git Clone 私有仓库</strong>
+                <div class="code">git clone
+                    https://username:token@\${location.host}/https://github.com/user/private-repo.git</div>
+            </div>
+
+            <div class="example-box">
+                <strong>Wget 下载</strong>
+                <div class="code">wget \${location.origin}/https://github.com/user/repo/archive/master.zip</div>
+            </div>
+
+            <div class="example-box">
+                <strong>Curl 下载</strong>
+                <div class="code">curl -O \${location.origin}/https://raw.githubusercontent.com/user/repo/main/file.txt
+                </div>
+            </div>
+        </div>
+
+        <div class="warning" style="display: none;">
+            <strong>⚠️ 注意事项</strong>
+            <ul style="margin-top: 10px; padding-left: 20px;">
+                <li>不支持 SSH Key 方式的 git clone</li>
+                <li>私有仓库需要使用 Personal Access Token</li>
+                <li>请合理使用，避免滥用</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 处理GET参数自动跳转
+        function handleGetParameters() {
+            // 解析URL参数
+            const params = new URLSearchParams(window.location.search);
+            const choose = params.get('choose');
+            const url = params.get('url');
+
+            // 检查参数是否存在
+            if (!choose || !url) {
+                return;
+            }
+
+            // 检查URL是否包含github.com
+            if (!url.includes('github.com')) {
+                return;
+            }
+
+            // 获取所有option元素
+            const options = document.querySelectorAll('#apiSelect option');
+            let selectedOption = null;
+
+            // 查找匹配id的option
+            for (const option of options) {
+                if (option.id === choose) {
+                    selectedOption = option;
+                    break;
+                }
+            }
+
+            // 如果找到匹配的option，构造代理URL并跳转
+            if (selectedOption) {
+                const apiEndpoint = selectedOption.value;
+                let proxyUrl;
+                
+                if (url.startsWith('http://') || url.startsWith('https://')) {
+                    proxyUrl = apiEndpoint + '/' + url;
+                } else {
+                    proxyUrl = apiEndpoint + '/https://' + url;
+                }
+
+                // 302跳转
+                window.location.replace(proxyUrl);
+            }
+        }
+
+        // 页面加载时处理GET参数
+        document.addEventListener('DOMContentLoaded', handleGetParameters);
+
+        // ping测试优化：测试锁、缓存和并行测试
+        let isTesting = false; // 测试锁，避免重复测试
+        const pingCache = {}; // 测试结果缓存
+        const cacheExpiryTime = 30000; // 缓存有效期30秒
+
+        // 实现HTTP ping测试功能
+        function pingAPI(url) {
+            return new Promise((resolve) => {
+                const startTime = performance.now();
+                const xhr = new XMLHttpRequest();
+                
+                // 使用HEAD请求快速测试延迟
+                xhr.open('HEAD', url, true);
+                xhr.timeout = 3000; // 3秒超时
+                
+                xhr.onload = () => {
+                    const endTime = performance.now();
+                    const latency = Math.round(endTime - startTime);
+                    // 缓存测试结果
+                    pingCache[url] = { latency, timestamp: Date.now() };
+                    resolve(latency);
+                };
+                
+                xhr.onerror = () => {
+                    pingCache[url] = { latency: -1, timestamp: Date.now() };
+                    resolve(-1); // 错误返回-1
+                };
+                
+                xhr.ontimeout = () => {
+                    pingCache[url] = { latency: -1, timestamp: Date.now() };
+                    resolve(-1); // 超时返回-1
+                };
+                
+                xhr.send();
+            });
+        }
+
+        // 测试单个API接口
+        async function pingSingleAPI(option) {
+            const url = option.value;
+            const originalText = option.textContent.replace(/\s*\[.*?\]\s*$/, ''); // 移除之前的延迟信息
+            
+            // 检查缓存
+            const cached = pingCache[url];
+            const now = Date.now();
+            
+            if (cached && (now - cached.timestamp) < cacheExpiryTime) {
+                // 使用缓存结果
+                if (cached.latency >= 0) {
+                    option.textContent = originalText + ` [${cached.latency}ms]`;
+                } else {
+                    option.textContent = originalText + ' [不可用]';
+                }
+                return;
+            }
+            
+            // 显示测试中状态
+            option.textContent = originalText + ' [测试中...]';
+            
+            // 执行ping测试
+            const latency = await pingAPI(url);
+            
+            // 更新显示结果
+            if (latency >= 0) {
+                option.textContent = originalText + ` [${latency}ms]`;
+            } else {
+                option.textContent = originalText + ' [不可用]';
+            }
+        }
+
+        // 测试所有API接口（并行）
+        async function pingAllAPIs() {
+            // 检查测试锁
+            if (isTesting) {
+                return;
+            }
+            
+            isTesting = true;
+            
+            const select = document.getElementById('apiSelect');
+            const options = select.querySelectorAll('option');
+            
+            // 并行测试所有接口
+            const promises = Array.from(options).map(pingSingleAPI);
+            
+            // 等待所有测试完成
+            await Promise.all(promises);
+            
+            // 释放测试锁
+            isTesting = false;
+        }
+
+        // 监听select的click事件，在打开时启动ping测试
+        document.getElementById('apiSelect').addEventListener('click', function() {
+            pingAllAPIs();
+        });
+
+        function downloadFile() {
+            const url = document.getElementById('urlInput').value.trim();
+            if (!url) {
+                alert('请输入 GitHub 链接');
+                return;
+            }
+
+            // 获取选择的接口
+            const selectedApi = document.getElementById('apiSelect').value;
+            const apiEndpoint = selectedApi;
+
+            // 构造代理 URL
+            let proxyUrl;
+            if (url.startsWith('http://') || url.startsWith('https://')) {
+                proxyUrl = apiEndpoint + '/' + url;
+            } else {
+                proxyUrl = apiEndpoint + '/https://' + url;
+            }
+
+            // 打开新窗口下载
+            window.open(proxyUrl, '_blank');
+        }
+
+        // 支持回车键下载
+        document.getElementById('urlInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                downloadFile();
+            }
+        });
+    </script>
+</body>
+
+</html>
